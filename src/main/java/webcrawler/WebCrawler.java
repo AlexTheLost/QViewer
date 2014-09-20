@@ -18,10 +18,14 @@ import org.jsoup.select.Elements;
 
 public class WebCrawler {
 
-	public List<String> getURLs(String query) throws UnsupportedEncodingException, IOException {
+	public String getURLs(String query)
+			throws UnsupportedEncodingException, IOException {
 		List<String> links = parsingPage(readPage(query, 0));
 		links.addAll(parsingPage(readPage(query, 10)));
-		return links;
+		if(links.size() <=10)
+			return conversion(links);
+		else 
+			return conversion(links.subList(0, 10));
 	}
 
 	private String readPage(String stringQuery, int startLink)
@@ -55,24 +59,30 @@ public class WebCrawler {
 
 		for (Element element : elements) {
 			String url = element.attr("href");
-			
+
 			url = java.net.URLDecoder.decode(url, "UTF-8");
 			if (!url.startsWith("/url?q="))
 				continue;
 			url = url.substring(url.indexOf("/url?") + 7, url.indexOf("&sa="));
-			
+
 			links.add(url);
 		}
 
 		return links;
 	}
 
-	public static void main(String[] args) throws IOException {
-		WebCrawler wc = new WebCrawler();
-		List<String> links = wc.getURLs("What is mars?");
+	public String conversion(List<String> links) {
+		StringBuffer result = new StringBuffer();
 		int i = 1;
 		for (String str : links)
-			System.out.println(i++ + " " + str);
+			result.append(i++ + " " + str + '\n');
+		return result.toString();
+	}
+
+	public static void main(String[] args) throws IOException {
+		WebCrawler wc = new WebCrawler();
+		System.out.println(wc.getURLs("What is mars?"));
+
 	}
 
 }
